@@ -11,6 +11,7 @@ window.addEventListener(`load`, async () => {
   createWebcamVideo(`picture-frame`, videoFrame => {
     faceDetector.updateImage(videoFrame)
   })
+  createParticlesEffect(`tsparticles`, [`#picture-frame`])
 })
 
 function createFacePictureControl(domContainerId) {
@@ -137,4 +138,48 @@ async function createFaceDetector() {
       }
     }
   }
+}
+
+function createParticlesEffect(domContainerId, domSelectors) {
+  const interactivity = {
+    events: {
+      onDiv: domSelectors.map(selectors => ({enable: true, selectors, mode: `bounce`})),
+    }
+  }
+  const particles = {
+    line_linked: {
+      distance: 110,
+      enable: true,
+      opacity: 0.4,
+    },
+    move: {
+      enable: true,
+      gravity: { enable: true },
+      outModes: {
+        default: 'bounce',
+        top: 'none',
+        bottom: 'destroy'
+      },
+    },
+    number: { value: 0 },
+    opacity: { value: 0.5 },
+    size: {
+      random: { enable: true, minimumValue: 5 },
+      value: 10
+    }
+  }
+  const emitters = [
+    {
+      position: { x: 50, y: -5 },
+      size: { width: 100, height: 0 },
+      rate: { quantity: 2, delay: 0.1 }
+    }
+  ]
+  return tsParticles.load(domContainerId, {
+    fps_limit: 60,
+    interactivity,
+    particles,
+    retina_detect: true,
+    emitters
+  })
 }
