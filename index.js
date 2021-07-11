@@ -3,14 +3,64 @@ const VIDEO_WIDTH = 320
 const VIDEO_HEIGHT = 240
 
 window.addEventListener(`load`, async () => {
+  const facePicture = createFacePictureControl(`picture-frame`)
   const faceDetector = await createFaceDetector()
-  faceDetector.on(`face`, faceDetected => {
-    console.log(`face center axis x:`, faceDetected.face[0])
+  faceDetector.on(`face`, face => {
+    facePicture.sync(face)
   })
   createWebcamVideo(`picture-frame`, videoFrame => {
     faceDetector.updateImage(videoFrame)
   })
 })
+
+function createFacePictureControl(domContainerId) {
+  const domElement = document.getElementById(domContainerId)
+  const position = {
+    x: 0,
+    y: 0,
+  }
+  function updateDOMStyle() {
+    domElement.style.left = parseInt(position.x) + `px`
+    domElement.style.top  = parseInt(position.y) + `px`
+  }
+  function applyBoundingBox() {
+    const { x, y } = position
+    const maxX = window.innerWidth
+    const maxY = window.innerHeight
+    if (x < -VIDEO_WIDTH)  position.x = -VIDEO_WIDTH
+    if (y < -VIDEO_HEIGHT) position.y = -VIDEO_HEIGHT
+    if (x > maxX) position.x = maxX
+    if (y > maxY) position.y = maxY
+  }
+  function easingMove(axis, newValue) {
+    const strengh = 30
+    const oldValue = position[axis]
+    position[axis] += (newValue - oldValue) / strengh
+  }
+  function updatePositionX(face) {
+    const domain = 40
+    const move = face.face[0] - face.eyes[0] // usually range [-domain .. +domain]
+    const signal = move < 0 ? -1 : +1
+    const alpha = (Math.min(domain, Math.abs(move)) / domain) * signal // [-1 .. +1]
+    const newX = window.innerWidth * ((alpha + 1) / 2)
+    easingMove(`x`, newX - (VIDEO_WIDTH / 2))
+  }
+  function updatePositionY(face) {
+    const domain = 30
+    const move = face.eyes[1] - face.ears[1] // usually range [0 .. +domain]
+    const alpha = Math.min(domain, Math.abs(move)) / domain // [0 .. +1]
+    const newY = window.innerHeight * (1 - alpha)
+    easingMove(`y`, newY - (VIDEO_HEIGHT / 4))
+  }
+  return {
+    sync: faceDetected => {
+      updatePositionX(faceDetected)
+      updatePositionY(faceDetected)
+      applyBoundingBox()
+      updateDOMStyle()
+    }
+  }
+}
 
 function createWebcamVideo(domContainerId, frameCallback) {
   const container = document.getElementById(domContainerId)

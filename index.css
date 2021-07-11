@@ -24,3 +24,6 @@ body {
   left: -55px;
   transform: scale(-0.9, 0.9);
 }
+#picture-frame .hidden {
+  display: none;
+}
