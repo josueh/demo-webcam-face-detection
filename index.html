@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Face Detection</title>
     <link rel="stylesheet" href="index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/1.31.1/tsparticles.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
     <script src="./index.js"></script>
   </head>
   <body>
+    <div id="tsparticles"></div>
     <div id="picture-frame">
       <video id="camera-video" width="320" height="240" autoplay muted></video>
       <canvas id="camera-canvas" width="320" height="240" class="hidden"></canvas>
